@@ -35,8 +35,8 @@ def download_model(bucket_name, source_blob_name, destination_file_name):
 def load_models():
     ensemble_models = []
     ensemble_paths = [
-        "multi_model1a.keras",
-        "multi_model3a.keras",
+        #"multi_model1a.keras",
+        #"multi_model3a.keras",
         "multi_model5a.keras",
     ]
 
