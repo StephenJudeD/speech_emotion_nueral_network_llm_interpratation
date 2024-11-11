@@ -46,7 +46,7 @@ def load_models():
     destination_folder = "/tmp"  # Local folder where you want to save the models
 
     # Set the environment variable for authentication
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "config/google_cloud.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
 
 
     for path in ensemble_paths:
