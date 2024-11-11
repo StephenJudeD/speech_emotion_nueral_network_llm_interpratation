@@ -45,8 +45,8 @@ def load_models():
     scaler_folder = "scalers"
     destination_folder = "/tmp"  # Local folder where you want to save the models
 
-    # Set the environment variable for authentication
-    #os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+    # Set the environment variable for application credentials
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-credentials.json'
 
 
     for path in ensemble_paths:
