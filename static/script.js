@@ -1,7 +1,7 @@
 document.getElementById('uploadButton').addEventListener('click', uploadAudio);
-document.getElementById('predictButton').addEventListener('click', fetchPredictions);
+document.getElementById('predictButton').addEventListener('click', fetchPredictions); // Fetch predictions when clicked
 
-// Handle the upload of audio files
+// Function to handle audio file upload
 async function uploadAudio() {
     const audioFileInput = document.getElementById('audioInput');
     const audioFile = audioFileInput.files[0];
@@ -29,14 +29,17 @@ async function uploadAudio() {
 
         const result = await response.json();
         displayResults(result);
-        document.getElementById("status").innerText = "Processing complete.";
-        document.getElementById("predictButton").style.display = 'block'; // Show the prediction button
+        
+        // Show the Predict Emotion button after successful upload
+        document.getElementById("predictButton").style.display = 'block'; 
+
+        document.getElementById("status").innerText = "Audio uploaded successfully.";
     } catch (error) {
         document.getElementById('response').innerText = "Error: " + error.message;
     }
 }
 
-// Fetch predictions from server
+// Fetch predictions from the server
 async function fetchPredictions() {
     const audioFileInput = document.getElementById('audioInput');
     const audioFile = audioFileInput.files[0];
@@ -61,13 +64,13 @@ async function fetchPredictions() {
 
         const result = await response.json();
         displayResults(result);
-        document.getElementById("status").innerText = "Predictions fetched.";
+        document.getElementById("status").innerText = "Predictions fetched successfully.";
     } catch (error) {
         document.getElementById('response').innerText = "Prediction Error: " + error.message;
     }
 }
 
-// Display the results on the screen
+// Function to display results
 function displayResults(result) {
     const responseDiv = document.getElementById('response');
     responseDiv.innerHTML = `
