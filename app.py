@@ -246,22 +246,28 @@ def process_audio():
         return jsonify({"error": "No audio file provided"}), 400
 
     audio_file = request.files['audio']
+
+    # Save the audio file regardless of its format
     audio_file_path = '/tmp/' + audio_file.filename
     audio_file.save(audio_file_path)
 
-    # Get prediction and transcription
-    predictions, transcription = process_audio_file(audio_file_path)
+    try:
+        # Get predictions and transcription
+        predictions, transcription = process_audio_file(audio_file_path)
 
-    # Get language model interpretation
-    llm_interpretation = get_llm_interpretation(predictions, transcription)
+        # Get language model interpretation
+        llm_interpretation = get_llm_interpretation(predictions, transcription)
 
-    response = {
-        "Emotion Probabilities": predictions,
-        "Transcription": transcription,
-        "LLM Interpretation": llm_interpretation
-    }
+        response = {
+            "Emotion Probabilities": predictions,
+            "Transcription": transcription,
+            "LLM Interpretation": llm_interpretation
+        }
 
-    return jsonify(response)
+        return jsonify(response)
+    except Exception as e:
+        # Handle any errors that occur during processing
+        return jsonify({"error": f"Processing failed: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
