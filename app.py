@@ -241,13 +241,11 @@ def index():
 
 @app.route('/process_audio', methods=['POST'])
 def process_audio():
-    # Check if an audio file is present in the request
+    # Check if audio file exists
     if 'audio' not in request.files:
         return jsonify({"error": "No audio file provided"}), 400
 
     audio_file = request.files['audio']
-
-    # Save the audio file regardless of its format
     audio_file_path = '/tmp/' + audio_file.filename
     audio_file.save(audio_file_path)
 
@@ -266,7 +264,6 @@ def process_audio():
 
         return jsonify(response)
     except Exception as e:
-        # Handle any errors that occur during processing
         return jsonify({"error": f"Processing failed: {str(e)}"}), 500
 
 if __name__ == '__main__':
