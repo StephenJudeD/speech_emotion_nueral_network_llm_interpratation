@@ -1,7 +1,7 @@
 document.getElementById('uploadButton').addEventListener('click', uploadAudio);
-document.getElementById('predictButton').addEventListener('click', fetchPredictions); // Fetch predictions when clicked
+document.getElementById('predictButton').addEventListener('click', fetchPredictions); // Adding LLM Predictions
 
-// Function to handle audio file upload
+// Handle the audio file upload
 async function uploadAudio() {
     const audioFileInput = document.getElementById('audioInput');
     const audioFile = audioFileInput.files[0];
@@ -29,17 +29,16 @@ async function uploadAudio() {
 
         const result = await response.json();
         displayResults(result);
-        
+
         // Show the Predict Emotion button after successful upload
         document.getElementById("predictButton").style.display = 'block'; 
-
         document.getElementById("status").innerText = "Audio uploaded successfully.";
     } catch (error) {
         document.getElementById('response').innerText = "Error: " + error.message;
     }
 }
 
-// Fetch predictions from the server
+// Fetch predictions from server
 async function fetchPredictions() {
     const audioFileInput = document.getElementById('audioInput');
     const audioFile = audioFileInput.files[0];
@@ -49,6 +48,7 @@ async function fetchPredictions() {
         return;
     }
 
+    // Prepare FormData for accessing again
     const formData = new FormData();
     formData.append("audio", audioFile);
 
@@ -66,17 +66,17 @@ async function fetchPredictions() {
         displayResults(result);
         document.getElementById("status").innerText = "Predictions fetched successfully.";
     } catch (error) {
-        document.getElementById('response').innerText = "Prediction Error: " + error.message;
+        document.getElementById('response').innerText = "Prediction error: " + error.message;
     }
 }
 
-// Function to display results
+// Display results in the response div
 function displayResults(result) {
     const responseDiv = document.getElementById('response');
     responseDiv.innerHTML = `
         <h2>Predictions:</h2>
         <p><strong>Emotion Probabilities:</strong> ${JSON.stringify(result["Emotion Probabilities"], null, 2)}</p>
-        <p><strong>Transcription:</strong> ${result["Transcription"]}</p>
-        <p><strong>LLM Interpretation:</strong> ${result["LLM Interpretation"]}</p>
+        <p><strong>Transcription:</strong> ${result["Transcription"] || "Not available"}</p>
+        <p><strong>LLM Interpretation:</strong> ${result["LLM Interpretation"] || "Not available"}</p>
     `;
 }
