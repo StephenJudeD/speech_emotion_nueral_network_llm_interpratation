@@ -241,7 +241,7 @@ def index():
 
 @app.route('/process_audio', methods=['POST'])
 def process_audio():
-    # Check if audio file exists
+    # Check if an audio file is present in the request
     if 'audio' not in request.files:
         return jsonify({"error": "No audio file provided"}), 400
 
@@ -253,14 +253,14 @@ def process_audio():
         # Get predictions and transcription
         predictions, transcription = process_audio_file(audio_file_path)
 
-        # Get language model interpretation
-        llm_interpretation = get_llm_interpretation(predictions, transcription)
-
         response = {
             "Emotion Probabilities": predictions,
             "Transcription": transcription,
-            "LLM Interpretation": llm_interpretation
         }
+
+        # Assuming `get_llm_interpretation` is defined and used as necessary
+        if 'LLM Interpretation' in result:
+            response["LLM Interpretation"] = llm_interpretation
 
         return jsonify(response)
     except Exception as e:
