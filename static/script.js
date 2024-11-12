@@ -1,7 +1,6 @@
 document.getElementById('uploadButton').addEventListener('click', uploadAudio);
-document.getElementById('predictButton').addEventListener('click', fetchPredictions); // Adding LLM Predictions
+document.getElementById('predictButton').addEventListener('click', fetchPredictions);
 
-// Handle the audio file upload
 async function uploadAudio() {
     const audioFileInput = document.getElementById('audioInput');
     const audioFile = audioFileInput.files[0];
@@ -29,8 +28,6 @@ async function uploadAudio() {
 
         const result = await response.json();
         displayResults(result);
-
-        // Show the Predict Emotion button after successful upload
         document.getElementById("predictButton").style.display = 'block'; 
         document.getElementById("status").innerText = "Audio uploaded successfully.";
     } catch (error) {
@@ -38,7 +35,6 @@ async function uploadAudio() {
     }
 }
 
-// Fetch predictions from server
 async function fetchPredictions() {
     const audioFileInput = document.getElementById('audioInput');
     const audioFile = audioFileInput.files[0];
@@ -48,7 +44,6 @@ async function fetchPredictions() {
         return;
     }
 
-    // Prepare FormData for accessing again
     const formData = new FormData();
     formData.append("audio", audioFile);
 
@@ -66,11 +61,10 @@ async function fetchPredictions() {
         displayResults(result);
         document.getElementById("status").innerText = "Predictions fetched successfully.";
     } catch (error) {
-        document.getElementById('response').innerText = "Prediction error: " + error.message;
+        document.getElementById('response').innerText = "Prediction Error: " + error.message;
     }
 }
 
-// Display results in the response div
 function displayResults(result) {
     const responseDiv = document.getElementById('response');
     responseDiv.innerHTML = `
