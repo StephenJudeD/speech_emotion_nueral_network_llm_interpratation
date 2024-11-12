@@ -1,55 +1,37 @@
-let mediaRecorder;
-let audioChunks = [];
+document.getElementById('uploadButton').addEventListener('click', uploadAudio);
 
-document.getElementById('recordButton').addEventListener('click', startRecording);
-document.getElementById('stopButton').addEventListener('click', stopRecording);
+async function uploadAudio() {
+    const audioFileInput = document.getElementById('audioInput');
+    const audioFile = audioFileInput.files[0];
 
-async function startRecording() {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (!audioFile) {
+        document.getElementById("status").innerText = "Please select an audio file.";
+        return;
+    }
 
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
-    mediaRecorder.addEventListener("dataavailable", event => {
-        audioChunks.push(event.data);
-    });
+    // Display the audio playback for the uploaded file
+    const audioUrl = URL.createObjectURL(audioFile);
+    document.getElementById('audioPlayback').src = audioUrl;
 
-    mediaRecorder.start();
-    document.getElementById("status").innerText = "Recording...";
-    document.getElementById('recordButton').disabled = true;
-    document.getElementById('stopButton').disabled = false;
-}
+    const formData = new FormData();
+    formData.append("audio", audioFile);
 
-function stopRecording() {
-    mediaRecorder.stop();
-    document.getElementById("status").innerText = "Recording stopped.";
-    document.getElementById('recordButton').disabled = false;
-    document.getElementById('stopButton').disabled = true;
+    try {
+        const response = await fetch('/process_audio', {
+            method: 'POST',
+            body: formData
+        });
 
-    mediaRecorder.addEventListener("stop", async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        document.getElementById('audioPlayback').src = audioUrl;
-
-        // Send audio blob to the server
-        const formData = new FormData();
-        formData.append("audio", audioBlob, "audio.wav");
-
-        try {
-            const response = await fetch('/process_audio', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const result = await response.json();
-            displayResults(result);
-        } catch (error) {
-            document.getElementById('response').innerText = "Error: " + error.message;
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
         }
-    });
+
+        const result = await response.json();
+        displayResults(result);
+        document.getElementById("status").innerText = "Processing complete.";
+    } catch (error) {
+        document.getElementById('response').innerText = "Error: " + error.message;
+    }
 }
 
 function displayResults(result) {
