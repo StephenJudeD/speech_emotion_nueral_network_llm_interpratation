@@ -20,6 +20,7 @@ from tensorflow.keras.models import load_model
 from google.cloud import storage
 import requests
 import openai
+from vis import plot_emotion_probabilities
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -244,16 +245,21 @@ def process_audio():
     audio_file.save(audio_file_path)
 
     try:
-        # Get predictions and transcription
+        # Obtain predictions dynamically
         predictions, transcription, llm_interpretation = process_audio_file(audio_file_path)
 
+        # Call the plotting function to generate charts
+        bar_chart_path, radar_chart_path = plot_emotion_probabilities(predictions)
+
+        # Prepare response without probabilities
         response = {
-            "Emotion Probabilities": predictions,
             "Transcription": transcription,
-            "LLM Interpretation": llm_interpretation,  # Include LLM interpretation here
+            "LLM Interpretation": llm_interpretation,
+            "Bar Chart Path": bar_chart_path,
+            "Radar Chart Path": radar_chart_path
         }
 
-        return jsonify(response)
+        return response  # Send the paths of the images
     except Exception as e:
         return jsonify({"error": f"Processing failed: {str(e)}"}), 500
 
