@@ -77,6 +77,6 @@ function displayResults(result) {
         <h2>Predictions:</h2>
         <p><strong>Emotion Probabilities:</strong> ${JSON.stringify(result["Emotion Probabilities"], null, 2)}</p>
         <p><strong>Transcription:</strong> ${result["Transcription"]}</p>
-        <p><strong>LLM Interpretation:</strong> ${result["LLM Interpretation"]}</p>
+        <p><strong>LLM Interpretation:</strong> ${result["LLM Interpretation"]}</p> <!-- Here -->
     `;
 }
