@@ -19,6 +19,7 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from google.cloud import storage
 import requests
+import openai
 
 # Initialize Flask app
 app = Flask(__name__)
