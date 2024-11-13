@@ -263,7 +263,7 @@ def process_audio():
         predictions, transcription = process_audio_file(audio_file_path)
         
         # Add LLM interpretation based on predictions and transcription
-        llm_interpretation = get_llm_interpretation(predictions, transcription)
+        #llm_interpretation = get_llm_interpretation(predictions, transcription)
 
         # Prepare the response with all data
         response = {
