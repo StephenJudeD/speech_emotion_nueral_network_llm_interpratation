@@ -179,7 +179,13 @@ def process_audio_file(audio_file):
     # Get audio transcription
     transcription = transcribe_audio(audio_file)
 
-    return prediction, transcription
+    # Get LLM interpretation
+    try:
+        llm_interpretation = get_llm_interpretation(prediction, transcription)
+    except Exception as e:
+        llm_interpretation = f"LLM interpretation error: {str(e)}"
+
+    return prediction, transcription, llm_interpretation
 
 # Define LLM integration
 def get_llm_interpretation(emotional_results, transcription):
@@ -237,11 +243,12 @@ def process_audio():
 
     try:
         # Get predictions and transcription
-        predictions, transcription = process_audio_file(audio_file_path)
+        predictions, transcription, llm_interpretation = process_audio_file(audio_file_path)
 
         response = {
             "Emotion Probabilities": predictions,
             "Transcription": transcription,
+            "LLM Interpretation": llm_interpretation,  # Include LLM interpretation here
         }
 
         return jsonify(response)
