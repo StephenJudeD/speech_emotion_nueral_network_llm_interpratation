@@ -225,6 +225,29 @@ def get_llm_interpretation(emotional_results, transcription):
 def index():
     return render_template('index.html')
 
+#@app.route('/process_audio', methods=['POST'])
+#def process_audio():
+    # Check if an audio file is present in the request
+    #if 'audio' not in request.files:
+        #return jsonify({"error": "No audio file provided"}), 400
+
+    #audio_file = request.files['audio']
+    #audio_file_path = '/tmp/' + audio_file.filename
+    #audio_file.save(audio_file_path)
+
+    #try:
+        # Get predictions and transcription
+        #predictions, transcription = process_audio_file(audio_file_path)
+
+        #response = {
+            #"Emotion Probabilities": predictions,
+            #"Transcription": transcription,
+        #}
+
+        #return jsonify(response)
+    #except Exception as e:
+        #return jsonify({"error": f"Processing failed: {str(e)}"}), 500
+
 @app.route('/process_audio', methods=['POST'])
 def process_audio():
     # Check if an audio file is present in the request
@@ -238,15 +261,23 @@ def process_audio():
     try:
         # Get predictions and transcription
         predictions, transcription = process_audio_file(audio_file_path)
+        
+        # Add LLM interpretation based on predictions and transcription
+        llm_interpretation = get_llm_interpretation(predictions, transcription)
 
+        # Prepare the response with all data
         response = {
             "Emotion Probabilities": predictions,
             "Transcription": transcription,
+            "LLM Interpretation": llm_interpretation  # Include LLM interpretation here
         }
 
         return jsonify(response)
     except Exception as e:
         return jsonify({"error": f"Processing failed: {str(e)}"}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
