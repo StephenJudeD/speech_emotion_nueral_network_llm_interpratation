@@ -229,7 +229,6 @@ def index():
 def process_audio():
     # Check if an audio file is present in the request
     if 'audio' not in request.files:
-        app.logger.error('No audio file provided.')
         return jsonify({"error": "No audio file provided"}), 400
 
     audio_file = request.files['audio']
@@ -237,31 +236,17 @@ def process_audio():
     audio_file.save(audio_file_path)
 
     try:
-        # Use cleanup_memory to manage resources
-        with cleanup_memory():
-            # Get predictions and transcription
-            predictions, transcription = process_audio_file(audio_file_path)
-
-            # Get LLM interpretation
-            try:
-                llm_interpretation = get_llm_interpretation(predictions, transcription)
-            except Exception as llm_error:
-                app.logger.error(f'Error getting LLM interpretation: {str(llm_error)}')
-                llm_interpretation = "Error obtaining interpretation."
+        # Get predictions and transcription
+        predictions, transcription = process_audio_file(audio_file_path)
 
         response = {
             "Emotion Probabilities": predictions,
             "Transcription": transcription,
-            "LLM Interpretation": llm_interpretation,  # Include LLM interpretation in the response
         }
 
         return jsonify(response)
-
     except Exception as e:
-        app.logger.error(f'Error processing audio: {str(e)}')
         return jsonify({"error": f"Processing failed: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
 if __name__ == '__main__':
     app.run(debug=True)
