@@ -193,26 +193,19 @@ def get_llm_interpretation(emotional_results, transcription):
     openai.api_key = os.getenv('OPENAI_API_KEY')
     prompt = f"""
         You are an expert in audio emotion recognition and analysis. Given the following information:
-
-            Audio data details:
-            - Emotional recognition results: {emotional_results}
-            - Transcript: {transcription}
-
-            Your task is to provide a comprehensive and insightful interpretation of the emotional content captured in the audio data, considering both the emotion recognition results and the transcript.
-
-            In your response, please:
-
-            <thinking>
-            - Summarize the key emotions detected by the model and their relative strengths.
-            - Discuss how the emotions expressed in the transcript align with or differ from the model's predictions.
-            - Analyze any notable patterns or trends in the emotional content, especially changes in emotional state over time, differences between speakers, or contextual factors influencing the emotions.
-            - Highlight the most salient and informative aspects of the emotional data that would be valuable for understanding the overall emotional experience captured in the audio.
-            </thinking>
-
-            <result>
-            Based on the provided information, your comprehensive and insightful interpretation of the emotional content in the audio data is:
-            </result>
-        """
+    
+        Audio data details:
+        - Emotional recognition results: {emotional_results}
+        - Transcript: {transcription}
+    
+        Provide a concise and insightful interpretation of the emotional content. Focus on:
+    
+        - Key detected emotions and their strengths.
+        - How these emotions relate to the transcript.
+        - Significant trends in the emotional content.
+    
+        Highlight the most salient and informative aspects of the emotional data that would be valuable for understanding the overall emotional experience captured in the audio.
+    """
 
     headers = {
         "Content-Type": "application/json",
