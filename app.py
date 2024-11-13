@@ -224,13 +224,16 @@ def index():
 
 @app.route('/process_audio', methods=['POST'])
 def process_audio():
-    # Check if an audio file is present in the request
     if 'audio' not in request.files:
         return jsonify({"error": "No audio file provided"}), 400
 
     audio_file = request.files['audio']
     audio_file_path = '/tmp/' + audio_file.filename
     audio_file.save(audio_file_path)
+
+    predictions = None
+    transcription = None
+    llm_interpretation = None
 
     try:
         # Get predictions and transcription
@@ -243,7 +246,7 @@ def process_audio():
         response = {
             "Emotion Probabilities": predictions,
             "Transcription": transcription,
-            "LLM Interpretation": llm_interpretation  # Include LLM interpretation here
+            "LLM Interpretation": llm_interpretation
         }
 
         return jsonify(response)
@@ -251,7 +254,14 @@ def process_audio():
         return jsonify({"error": f"Processing failed: {str(e)}"}), 500
     finally:
         # Clean up to free memory
-        del audio_file, audio_file_path, predictions, transcription, llm_interpretation
+        del audio_file, audio_file_path
+        # Only delete if they were assigned
+        if predictions is not None:
+            del predictions
+        if transcription is not None:
+            del transcription
+        if llm_interpretation is not None:
+            del llm_interpretation
         gc.collect()
 
 if __name__ == '__main__':
