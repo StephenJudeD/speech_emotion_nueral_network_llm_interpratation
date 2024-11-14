@@ -18,38 +18,39 @@ async function startRecording() {
         audioChunks.push(event.data);
     };
 
-    mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks);
-        const audioUrl = URL.createObjectURL(audioBlob);
-        document.getElementById('audioPlayback').src = audioUrl;
+mediaRecorder.onstop = async () => {
+    const audioBlob = new Blob(audioChunks);
+    console.log(`Recorded audio MIME type: ${audioBlob.type}`); // Log MIME type
+    const audioUrl = URL.createObjectURL(audioBlob);
+    document.getElementById('audioPlayback').src = audioUrl;
 
-        // Check the duration
-        const recordingDuration = (Date.now() - recordingStartTime) / 1000; // in seconds
-        if (recordingDuration < 3 || recordingDuration > 30) {
-            document.getElementById("status").innerText = "Recording must be between 3 and 30 seconds.";
-            return;
+    // Check the duration
+    const recordingDuration = (Date.now() - recordingStartTime) / 1000; // in seconds
+    if (recordingDuration < 3 || recordingDuration > 30) {
+        document.getElementById("status").innerText = "Recording must be between 3 and 30 seconds.";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "recording.wav"); // Ensure the filename ends with .wav
+
+    try {
+        const response = await fetch(`${BASE_URL}/process_audio`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
         }
 
-        const formData = new FormData();
-        formData.append("audio", audioBlob, "recording.wav");
-
-        try {
-            const response = await fetch(`${BASE_URL}/process_audio`, { // Use the full URL here
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const result = await response.json();
-            displayResults(result);
-            document.getElementById("status").innerText = "Prediction fetched successfully.";
-        } catch (error) {
-            document.getElementById('response').innerText = "Error: " + error.message;
-        }
-    };
+        const result = await response.json();
+        displayResults(result);
+        document.getElementById("status").innerText = "Prediction fetched successfully.";
+    } catch (error) {
+        document.getElementById('response').innerText = "Error: " + error.message;
+    }
+};
 
     mediaRecorder.start();
     document.getElementById('startRecording').disabled = true;
