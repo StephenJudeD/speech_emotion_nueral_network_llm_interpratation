@@ -2,6 +2,9 @@ let mediaRecorder;
 let audioChunks = [];
 let recordingStartTime;
 
+// Define the base URL (update this with your actual Heroku app URL)
+const BASE_URL = "https://speech-emotion-llm-e32536e9edb2.herokuapp.com/"; // Replace with your actual app URL
+
 document.getElementById('startRecording').addEventListener('click', startRecording);
 document.getElementById('stopRecording').addEventListener('click', stopRecording);
 
@@ -31,7 +34,7 @@ async function startRecording() {
         formData.append("audio", audioBlob, "recording.wav");
 
         try {
-            const response = await fetch('/process_audio', {
+            const response = await fetch(`${BASE_URL}/process_audio`, { // Use the full URL here
                 method: 'POST',
                 body: formData
             });
