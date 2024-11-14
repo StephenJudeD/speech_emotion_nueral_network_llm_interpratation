@@ -13,3 +13,4 @@ google-cloud-storage==2.10.0  # Include Google Cloud Storage for model handling
 gunicorn==20.1.0
 #ffmpeg-python
 Flask[async]==2.3.2
+audioread==3.0.0 
