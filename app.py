@@ -234,26 +234,25 @@ def index():
     return render_template('index.html')
 
 @app.route('/process_audio', methods=['POST'])
-def process_audio():
-    # Check if an audio file is present in the request
-    if 'audio' not in request.files:
-        return jsonify({"error": "No audio file provided"}), 400
-
-    audio_file = request.files['audio']
-    audio_file_path = '/tmp/' + audio_file.filename
-    audio_file.save(audio_file_path)
-
+async def process_audio():
     try:
+        if 'audio' not in request.files:
+            return jsonify({"error": "No audio file provided"}), 400
+
+        audio_file = request.files['audio']
+        audio_file_path = '/tmp/' + audio_file.filename
+        audio_file.save(audio_file_path)
+
         # Get predictions and transcription
-        predictions, transcription, llm_interpretation = process_audio_file(audio_file_path)
+        predictions, transcription, llm_interpretation = await process_audio_file(audio_file_path)
 
         response = {
             "Emotion Probabilities": predictions,
             "Transcription": transcription,
-            "LLM Interpretation": llm_interpretation,  # Include LLM interpretation here
+            "LLM Interpretation": llm_interpretation,
         }
-
         return jsonify(response)
+
     except Exception as e:
         return jsonify({"error": f"Processing failed: {str(e)}"}), 500
 
