@@ -242,16 +242,18 @@ async def process_audio():
         audio_file = request.files['audio']
         audio_file_path = '/tmp/' + audio_file.filename
         audio_file.save(audio_file_path)
-        print(f"Audio file saved at: {audio_file_path}")
+        print(f"Audio file saved at: {audio_file_path}")  # Log the file path
 
-        # Convert the audio to WAV format
-        wav_file_path = '/tmp/converted_audio.wav'
-        audio = AudioSegment.from_file(audio_file_path)  # Load the uploaded audio file
-        audio.export(wav_file_path, format="wav")  # Convert and save as WAV
-        print(f"Converted WAV file saved at: {wav_file_path}")
+        # Load the audio file directly using librosa
+        try:
+            data, sr = librosa.load(audio_file_path, sr=16000)
+            print(f"Loaded audio file with sample rate: {sr}")  # Log the sample rate
+        except Exception as e:
+            return jsonify({"error": f"Error loading audio file: {str(e)}"}), 500
 
-        # Get predictions and transcription
-        predictions, transcription, llm_interpretation = await process_audio_file(wav_file_path)
+        # Process the audio data (e.g., emotion prediction)
+        predictions, transcription, llm_interpretation = await process_audio_file(audio_file_path)
+        print(f"Predictions: {predictions}")  # Log the predictions
 
         response = {
             "Emotion Probabilities": predictions,
