@@ -242,11 +242,13 @@ async def process_audio():
         audio_file = request.files['audio']
         audio_file_path = '/tmp/' + audio_file.filename
         audio_file.save(audio_file_path)
+        print(f"Audio file saved at: {audio_file_path}")
 
         # Convert the audio to WAV format
         wav_file_path = '/tmp/converted_audio.wav'
         audio = AudioSegment.from_file(audio_file_path)  # Load the uploaded audio file
         audio.export(wav_file_path, format="wav")  # Convert and save as WAV
+        print(f"Converted WAV file saved at: {wav_file_path}")
 
         # Get predictions and transcription
         predictions, transcription, llm_interpretation = await process_audio_file(wav_file_path)
@@ -259,6 +261,7 @@ async def process_audio():
         return jsonify(response)
 
     except Exception as e:
+        print(f"Processing failed: {str(e)}")  # Log the error
         return jsonify({"error": f"Processing failed: {str(e)}"}), 500
 
 if __name__ == '__main__':
