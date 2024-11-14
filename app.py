@@ -243,8 +243,13 @@ async def process_audio():
         audio_file_path = '/tmp/' + audio_file.filename
         audio_file.save(audio_file_path)
 
+        # Convert the audio to WAV format
+        wav_file_path = '/tmp/converted_audio.wav'
+        audio = AudioSegment.from_file(audio_file_path)  # Load the uploaded audio file
+        audio.export(wav_file_path, format="wav")  # Convert and save as WAV
+
         # Get predictions and transcription
-        predictions, transcription, llm_interpretation = await process_audio_file(audio_file_path)
+        predictions, transcription, llm_interpretation = await process_audio_file(wav_file_path)
 
         response = {
             "Emotion Probabilities": predictions,
