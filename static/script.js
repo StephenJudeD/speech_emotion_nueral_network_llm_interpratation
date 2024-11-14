@@ -20,7 +20,7 @@ async function startRecording() {
 
 mediaRecorder.onstop = async () => {
     const audioBlob = new Blob(audioChunks);
-    console.log(`Recorded audio MIME type: ${audioBlob.type}`); // Log MIME type
+    console.log(`Recorded audio MIME type: ${audioBlob.type}`); // Log the MIME type
     const audioUrl = URL.createObjectURL(audioBlob);
     document.getElementById('audioPlayback').src = audioUrl;
 
