@@ -1,82 +1,61 @@
-document.getElementById('uploadButton').addEventListener('click', uploadAudio);
-document.getElementById('predictButton').addEventListener('click', fetchPredictions); // Fetch predictions when clicked
+let mediaRecorder;
+let audioChunks = [];
+let recordingStartTime;
 
-// Function to handle audio file upload
-async function uploadAudio() {
-    const audioFileInput = document.getElementById('audioInput');
-    const audioFile = audioFileInput.files[0];
+document.getElementById('startRecording').addEventListener('click', startRecording);
+document.getElementById('stopRecording').addEventListener('click', stopRecording);
 
-    if (!audioFile) {
-        document.getElementById("status").innerText = "Please select an audio file.";
-        return;
-    }
+async function startRecording() {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    recordingStartTime = Date.now();
 
-    const audioUrl = URL.createObjectURL(audioFile);
-    document.getElementById('audioPlayback').src = audioUrl;
+    mediaRecorder.ondataavailable = event => {
+        audioChunks.push(event.data);
+    };
 
-    const formData = new FormData();
-    formData.append("audio", audioFile);
+    mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks);
+        const audioUrl = URL.createObjectURL(audioBlob);
+        document.getElementById('audioPlayback').src = audioUrl;
 
-    try {
-        const response = await fetch('/process_audio', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+        // Check the duration
+        const recordingDuration = (Date.now() - recordingStartTime) / 1000; // in seconds
+        if (recordingDuration < 3 || recordingDuration > 30) {
+            document.getElementById("status").innerText = "Recording must be between 3 and 30 seconds.";
+            return;
         }
 
-        const result = await response.json();
-        displayResults(result);
-        
-        // Show the Predict Emotion button after successful upload
-        document.getElementById("predictButton").style.display = 'block'; 
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "recording.wav");
 
-        document.getElementById("status").innerText = "Audio uploaded successfully.";
-    } catch (error) {
-        document.getElementById('response').innerText = "Error: " + error.message;
-    }
-}
+        try {
+            const response = await fetch('/process_audio', {
+                method: 'POST',
+                body: formData
+            });
 
-// Fetch predictions from the server
-async function fetchPredictions() {
-    const audioFileInput = document.getElementById('audioInput');
-    const audioFile = audioFileInput.files[0];
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
 
-    if (!audioFile) {
-        document.getElementById("status").innerText = "No audio file uploaded for prediction.";
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("audio", audioFile);
-
-    try {
-        const response = await fetch('/process_audio', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+            const result = await response.json();
+            displayResults(result);
+            document.getElementById("status").innerText = "Prediction fetched successfully.";
+        } catch (error) {
+            document.getElementById('response').innerText = "Error: " + error.message;
         }
+    };
 
-        const result = await response.json();
-        displayResults(result);
-        document.getElementById("status").innerText = "Predictions fetched successfully.";
-    } catch (error) {
-        document.getElementById('response').innerText = "Prediction Error: " + error.message;
-    }
+    mediaRecorder.start();
+    document.getElementById('startRecording').disabled = true;
+    document.getElementById('stopRecording').disabled = false;
+    document.getElementById("status").innerText = "Recording...";
 }
 
-// Function to display results
-function displayResults(result) {
-    const responseDiv = document.getElementById('response');
-    responseDiv.innerHTML = `
-        <h2>Predictions:</h2>
-        <p><strong>Emotion Probabilities:</strong> ${JSON.stringify(result["Emotion Probabilities"], null, 2)}</p>
-        <p><strong>Transcription:</strong> ${result["Transcription"]}</p>
-        <p><strong>LLM Interpretation:</strong> ${result["LLM Interpretation"]}</p> <!-- Here -->
-    `;
+function stopRecording() {
+    mediaRecorder.stop();
+    document.getElementById('startRecording').disabled = false;
+    document.getElementById('stopRecording').disabled = true;
 }
