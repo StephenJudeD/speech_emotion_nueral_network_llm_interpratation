@@ -1,3 +1,4 @@
+import tempfile
 from flask import Flask, request, jsonify, render_template
 import os
 import joblib
@@ -12,7 +13,6 @@ from google.cloud import storage
 import requests
 import openai
 import logging
-import tempfile
 
 # Initialize Flask app
 app = Flask(__name__)
