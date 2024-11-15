@@ -12,6 +12,7 @@ from google.cloud import storage
 import requests
 import openai
 import logging
+import tempfile
 
 # Initialize Flask app
 app = Flask(__name__)
