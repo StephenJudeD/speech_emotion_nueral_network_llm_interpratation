@@ -1,6 +1,6 @@
 Flask[async]==2.3.2
 joblib==1.4.2
-tensorflow-cpu==2.17.0
+tensorflow-cpu==2.13.0  
 librosa==0.10.2.post1
 numpy==1.26.4
 scipy==1.13.1
@@ -8,6 +8,6 @@ openai==1.52.2
 SpeechRecognition==3.11.0
 requests==2.32.3
 pydub==0.25.1
-soundfile>=0.12.1  # Specify a version >=0.12.1
+soundfile>=0.12.1
 google-cloud-storage==2.10.0
 gunicorn==20.1.0
