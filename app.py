@@ -262,35 +262,47 @@ def index():
     return render_template('index.html')
 
 @app.route('/process_audio', methods=['POST'])
-def process_audio():
-    """Process uploaded audio file"""
-    temp_file_path = None
+async def process_audio():
     try:
         if 'audio' not in request.files:
             return jsonify({"error": "No audio file provided"}), 400
-
+        
         audio_file = request.files['audio']
-        temp_file_path = os.path.join('/tmp', audio_file.filename)
-        audio_file.save(temp_file_path)
-        logger.info(f"Audio file saved at: {temp_file_path}")
+        if audio_file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
 
-        predictions, transcription, llm_interpretation = process_audio_file(temp_file_path)
+        # Create temp files for processing
+        temp_input = tempfile.NamedTemporaryFile(suffix='.webm', delete=False)
+        temp_wav = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
         
-        response = {
-            "Emotion Probabilities": predictions,
-            "Transcription": transcription,
-            "LLM Interpretation": llm_interpretation,
-        }
-        
-        return jsonify(response)
+        try:
+            # Save the uploaded WebM file
+            audio_file.save(temp_input.name)
+            
+            # Convert to WAV using pydub
+            audio = AudioSegment.from_file(temp_input.name)
+            audio.export(temp_wav.name, format='wav')
+            
+            # Process with your existing code
+            waveform = process_audio_file(temp_wav.name)
+            emotion_probs = predict_emotion(waveform)
+            transcription = transcribe_audio(temp_wav.name)
+            llm_response = get_llm_response(transcription, emotion_probs)
+            
+            return jsonify({
+                "Emotion Probabilities": emotion_probs,
+                "Transcription": transcription,
+                "LLM Interpretation": llm_response
+            })
+
+        finally:
+            # Clean up temp files
+            os.unlink(temp_input.name)
+            os.unlink(temp_wav.name)
 
     except Exception as e:
-        logger.error(f"Processing failed: {str(e)}")
-        return jsonify({"error": f"Processing failed: {str(e)}"}), 500
-    
-    finally:
-        if temp_file_path and os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
+        print(f"Error processing audio: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     # Initialize models before starting the app
