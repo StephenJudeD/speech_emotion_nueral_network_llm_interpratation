@@ -271,23 +271,37 @@ async def process_audio():
         if audio_file.filename == '':
             return jsonify({"error": "No selected file"}), 400
 
-        # Create temp files for processing
+        # Debug print
+        print(f"Received audio file: {audio_file.filename}")
+        print(f"Content type: {audio_file.content_type}")
+
         temp_input = tempfile.NamedTemporaryFile(suffix='.webm', delete=False)
         temp_wav = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
         
         try:
-            # Save the uploaded WebM file
+            # Save and print the file size
             audio_file.save(temp_input.name)
+            print(f"Saved file size: {os.path.getsize(temp_input.name)} bytes")
             
             # Convert to WAV using pydub
-            audio = AudioSegment.from_file(temp_input.name)
+            audio = AudioSegment.from_file(temp_input.name, format="webm")
+            print("Successfully converted to AudioSegment")
+            
             audio.export(temp_wav.name, format='wav')
+            print(f"Exported WAV file size: {os.path.getsize(temp_wav.name)} bytes")
             
             # Process with your existing code
             waveform = process_audio_file(temp_wav.name)
+            print("Processed audio file")
+            
             emotion_probs = predict_emotion(waveform)
+            print("Got emotion predictions")
+            
             transcription = transcribe_audio(temp_wav.name)
+            print("Got transcription")
+            
             llm_response = get_llm_response(transcription, emotion_probs)
+            print("Got LLM response")
             
             return jsonify({
                 "Emotion Probabilities": emotion_probs,
@@ -295,13 +309,19 @@ async def process_audio():
                 "LLM Interpretation": llm_response
             })
 
+        except Exception as e:
+            print(f"Inner processing error: {str(e)}")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error location: {e.__traceback__.tb_lineno}")
+            raise e
         finally:
             # Clean up temp files
             os.unlink(temp_input.name)
             os.unlink(temp_wav.name)
 
     except Exception as e:
-        print(f"Error processing audio: {str(e)}")
+        print(f"Outer error: {str(e)}")
+        print(f"Error type: {type(e).__name__}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
